@@ -2,23 +2,44 @@ import random
 import time
 
 class Magic:
-    def __init__(self,magicName,magicPower,magicType,magicBodyType):
+    def __init__(self,magicName,magicPower,magicType,magicBodyType, magicTime):
         self.MagicName=magicName
         self.MagicPower=magicPower
         self.MagicType=magicType
         self.MagicName=magicName
         self.MagicBodyType=magicBodyType
+        self.MagicTime=magicTime
 
     def magic_action(self,h1,h2):
-        h1Lst = [h1.Race,h1.Health,h1.Damage,h1.Speed]
-        h2Lst = [h2.Race,h2.Health,h2.Damage,h2.Speed]
+
         if self.MagicType == 1:
             for i in self.MagicBodyType:
-                h2Lst[i] -= self.MagicPower
+                if i == 1:
+                    h2.Health -= self.MagicPower
+                elif i == 2:
+                    h2.Damage -= self.MagicPower
+                    if h2.Damage <= -1:
+                        h2.Damage = 0
+                elif i == 3:
+                    h2.Speed -= self.MagicPower
+                    if h2.Speed <= -1:
+                        h2.Speed = 0
+                elif i == 4:
+                    h2.Magic -= self.MagicPower
+                    if h2.Magic <= -1:
+                        h2.Magic = 0
+                print()
 
         elif self.MagicBodyType == 2:
             for i in self.MagicBodyType:
-                h1Lst[i] +=  self.MagicPower
+                if i == 1:
+                    h1.Health += self.MagicPower
+                elif i == 2:
+                    h1.Damage += self.MagicPower
+                elif i == 3:
+                    h1.Speed += self.MagicPower
+                elif i == 4:
+                    h1.Magic += self.MagicPower
 
 
 class Heroes:
@@ -35,34 +56,31 @@ class Heroes:
 
     def evade(self):
         rNumber = random.randint(1,100)
-        print(rNumber)
 
         if rNumber <= self.Speed:
             return True
         else:
             return False
     def dealth(self):
-        if self.Health <= 0:
-            return True
-
+        return self.Health <= 0
     def magicUse(self):
         rNumber = random.randint(1,100)
-
-        if self.Magic <= rNumber:
-            #доделать шанс активации
+        return self.Magic >= rNumber
 
 
 heroes = [
-    Heroes("Orc",200,25,10,0,None),
-    Heroes("people",100,30,20,10,3),
-    Heroes("mage",60,20,20,50,1)
+    Heroes("test", 300, 0, 0, 0, [0]),
+    Heroes("Orc",150,25,10,0,[0]),
+    Heroes("people",100,30,20,10,[4]),
+    Heroes("mage",60,20,20,50,[2, 3])
          ]
 
 Magics = [
-    Magic("heal",40,2,[1]),
-    Magic("fire ball",40,1,[1]),
-    Magic("frozen ball",20,1,[2,3]),
-    Magic("Strength up",10,2,[1,2,3])
+    Magic("None", 0, 0, [0], 0),
+    Magic("heal",40,2,[1], 0),
+    Magic("fire ball",40,1,[1], 0),
+    Magic("frozen ball",20,1,[2,3], 2),
+    Magic("Strength up",10,2,[1,2,3], 3)
          ]
 
 def Punch(h1, h2):
@@ -70,23 +88,32 @@ def Punch(h1, h2):
     if h2.evade():
         print(f"{h2.Race} уклонился от атаки")
     else:
-        h2.Health = h2.Health - h1.Damage
-        print(f"ударил {h1.Race}")
+        if h1.magicUse():
+            randMagic = Magics[random.choice(h1.HeroMagicType)]
+            randMagic.magic_action(h1, h2)
+            print(f"{h1.Race} использовал магию {randMagic.MagicName}")
+        else:
+            h2.Health = h2.Health - h1.Damage
+            print(f"{h1.Race} ударил {h2.Race}")
 
     if h2.dealth():
         print(f"{h1.Race} победил!")
         return True
     h2.Show_health()
-
+a = 1
+for i in heroes:
+    print(f"{a}.{i.Race}")
+    a += 1
+Hero1, Hero2 = map(int,input("укажи номер двух героев церез пробел:").split())
 
 while True:
-    time.sleep(3)
+    b = input("следующий ход")
 
     print(" ")
-    p1= Punch(heroes[0], heroes[1])
+    p1= Punch(heroes[Hero1-1], heroes[Hero2-1])
     if p1:
         break
     print(" ")
-    p2 = Punch(heroes[1], heroes[0])
+    p2 = Punch(heroes[Hero2-1], heroes[Hero1-1])
     if p2:
         break
