@@ -72,7 +72,7 @@ heroes = [
     Heroes("test", 300, 0, 0, 0, [0]),
     Heroes("Orc",150,25,10,0,[0]),
     Heroes("people",100,30,20,10,[4]),
-    Heroes("mage",60,20,20,50,[2, 3])
+    Heroes("mage",60,20,20,50,[3])
          ]
 
 Magics = [
@@ -82,16 +82,24 @@ Magics = [
     Magic("frozen ball",20,1,[2,3], 2),
     Magic("Strength up",10,2,[1,2,3], 3)
          ]
-
+time = 0
 def Punch(h1, h2):
-
+    global  time
     if h2.evade():
         print(f"{h2.Race} уклонился от атаки")
     else:
         if h1.magicUse():
+            time += 1
+            print(time)
             randMagic = Magics[random.choice(h1.HeroMagicType)]
-            randMagic.magic_action(h1, h2)
-            print(f"{h1.Race} использовал магию {randMagic.MagicName}")
+            if time != Magics[randMagic.MagicTime]:
+                randMagic.magic_action(h1, h2)
+                print(f"{h1.Race} использовал магию {randMagic.MagicName}")
+            elif time == Magics[randMagic.MagicTime]:
+                h2.Magic += Magics[randMagic.MagicPower]
+                h2.Speed += Magics[randMagic.MagicPower]
+                h2.Damage += Magics[randMagic.MagicPower]
+                print(h2.Magic,h2.Damage,h2.Speed)
         else:
             h2.Health = h2.Health - h1.Damage
             print(f"{h1.Race} ударил {h2.Race}")
